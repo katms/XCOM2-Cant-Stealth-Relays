@@ -1,0 +1,1 @@
+﻿Pods in sight of the alien relay will activate when they see it being fired on. As convenient as it is to snipe it while the armed guards two feet to the left ignore it, it doesn't make sense.
