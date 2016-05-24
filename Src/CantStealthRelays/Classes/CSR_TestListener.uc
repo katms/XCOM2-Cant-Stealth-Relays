@@ -3,28 +3,36 @@ class CSR_TestListener extends UIScreenListener;
 event OnInit(UIScreen Screen)
 {
 	local Object this;
+	local XComGameStateHistory History;
+	local XComGameState_BattleData BattleData;
+	
+	History = `XCOMHISTORY;
+	BattleData = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 
+	// check mission objectives to see if the mod should do anything
+	if(INDEX_NONE == BattleData.MapData.ActiveMission.MapNames.find("Obj_DestroyObject"))
+	{
+		return;
+	}
+	
 	this = self;
-
-
-	`XEVENTMGR.RegisterForEvent(this, 'ObjectInteraction', OnInteraction, ELD_OnStateSubmitted);
+	
 	`XEVENTMGR.RegisterForEvent(this, 'AbilityActivated', OnAbilityActivated, ELD_OnStateSubmitted);
 }
 
-// if this works it'll probably be better
-function EventListenerReturn OnInteraction(Object EventData, Object EventSource, XComGameState GameState, Name EventID)
+function XComGameState_InteractiveObject GetRelay()
 {
-	local XComGameState_Unit Unit;
-	local XComGameState_InteractiveObject Interactive;
-	local string UnitName;
-
-	Unit = XComGameState_Unit(EventData);
-	Interactive = XComGameState_InteractiveObject(EventSource);
-
-	UnitName = (Unit.IsASoldier()) ? Unit.GetFullName() : string(Unit.GetMyTemplateName());
-	`log(UnitName@"interacted with"@Interactive);
-
-	return ELR_NoInterrupt;
+	local XComInteractiveLevelActor InteractiveActor;
+	local XComGameState_InteractiveObject Relay;
+	foreach `BATTLE.AllActors(class'XComInteractiveLevelActor', InteractiveActor)
+	{
+		Relay = InteractiveActor.GetInteractiveState();
+		if(none != Relay && INDEX_NONE != InStr(Relay.ArchetypePath, "AlienRelay"))
+		{
+			return Relay;
+		}
+	}
+	return none;
 }
 
 // this will definitely work
