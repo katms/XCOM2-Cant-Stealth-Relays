@@ -1,11 +1,9 @@
-class CSR_TestListener extends UIScreenListener;
+class CSR_TacticalListener extends UIScreenListener;
 
 event OnInit(UIScreen Screen)
 {
 	local XComGameStateHistory History;
 	local XComGameState_BattleData BattleData;
-	local XComGameState_InteractiveObject Relay;
-	//local CSRGameState_InteractiveObject_Attacked Component;
 	
 	History = `XCOMHISTORY;
 	BattleData = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
