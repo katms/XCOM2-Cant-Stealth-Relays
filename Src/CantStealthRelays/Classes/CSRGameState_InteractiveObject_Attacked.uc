@@ -11,12 +11,11 @@ function InitComponent()
 	local Object this;
 	this = self;
 
-	`log("InitCOmponent");
-
 	// listen for attacks
 	`XEVENTMGR.RegisterForEvent(this, 'AbilityActivated', OnAbilityActivated, ELD_OnStateSubmitted);
 }
 
+// if the owning relay was shot
 function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSource, XComGameState GameState, Name EventID)
 {
 	local XComGameStateContext_Ability AbilityContext;
@@ -51,7 +50,6 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 				{
 					if(INDEX_NONE != AIGroup.m_arrMembers.find('ObjectID',Ref.ObjectID))
 					{
-						`log("Activating"@AIGroup);
 						AIGroup.ApplyAlertAbilityToGroup(eAC_TakingFire);
 						AIGroup.InitiateReflexMoveActivate(XComGameState_Unit(EventSource), eAC_SeesSpottedUnit);
 						break;
@@ -64,6 +62,7 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 	return ELR_NoInterrupt;
 }
 
+// filter AIGroups based on config settings
 function bool ApplyFilter(const XComGameState_AIGroup AIGroup)
 {
 	//return default.LimitActivationsToSeen ? AIGroup.EverSightedByEnemy : true;
@@ -75,11 +74,13 @@ function bool ApplyFilter(const XComGameState_AIGroup AIGroup)
 	History = `XCOMHISTORY;
 	OwnerRelay = XComGameState_InteractiveObject(History.GetGameStateForObjectID(OwningObjectID));
 
+	// no limit
 	if(AlertRadius <= 0)
 	{
 		return true;
 	}
 
+	// check if any members are within AlertRadius tiles
 	foreach AIGroup.m_arrMembers(Ref)
 	{
 		Unit = XComGameState_Unit(History.GetGameStateForObjectID(Ref.ObjectID));

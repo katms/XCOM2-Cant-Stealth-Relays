@@ -1,3 +1,4 @@
+// called when entering tactical (either a new mission or loading save)
 class CSR_TacticalListener extends UIScreenListener;
 
 event OnInit(UIScreen Screen)
@@ -11,12 +12,12 @@ event OnInit(UIScreen Screen)
 	// check mission objectives to see if the mod should do anything
 	if("DestroyObject" != BattleData.MapData.ActiveMission.MissionFamily)
 	{
-		`log("objective not found");
 		return;
 	}
 	AttachComponent();
 }
 
+// find an interactive object with "AlienRelay" in ArchetypePath
 function XComGameState_InteractiveObject GetRelay()
 {
 	local XComInteractiveLevelActor InteractiveActor;
@@ -32,6 +33,7 @@ function XComGameState_InteractiveObject GetRelay()
 	return none;
 }
 
+// attack listener component
 function AttachComponent()
 {
 	local XComGameState NewGameState;
@@ -40,16 +42,15 @@ function AttachComponent()
 
 	Relay = GetRelay();
 
+	// can't find relay
 	if(none == Relay)
 	{
-		`log("Relay not found");
 		return;
 	}
 
-	
+	// already has one, do nothing
 	if(none != Relay.FindComponentObject(class'CSRGameState_InteractiveObject_Attacked'))
 	{
-		`log("Component found");
 		return;
 	}
 
@@ -66,7 +67,6 @@ function AttachComponent()
 	NewGameState.AddStateObject(UpdatedRelay);
 
 	`XCOMHISTORY.AddGameStateToHistory(NewGameState);
-	`log("Added component to relay");
 }
 
 defaultproperties
