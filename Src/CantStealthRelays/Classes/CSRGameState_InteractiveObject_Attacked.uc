@@ -18,8 +18,8 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 	local XComGameStateContext_Ability AbilityContext;
 	local XComGameStateHistory History;
 	local array<StateObjectReference> Viewers;
-	local XComGameState_Unit Unit;
-	local int i;
+	local StateObjectReference Ref;
+	local XComGameState_AIGroup AIGroup;
 
 	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
 
@@ -33,19 +33,26 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 		}
 
 		History = `XCOMHISTORY;
-		`log("Relay attacked");
-		`log(AbilityContext.InterruptionStatus);
-		`log(AbilityContext.InputContext.AbilityTemplateName);
-		`log("Current health:"@XComGameState_InteractiveObject(History.GetGameStateForObjectID(OwningObjectID)).Health);
+
+		// get all aliens who can see the relay
 		`TACTICALRULES.VisibilityMgr.GetAllViewersOfTarget(OwningObjectID, Viewers, class'XComGameState_Unit', -1, Conditions);
-		for(i = 0; i < Viewers.length; ++i)
+
+		foreach History.IterateByClassType(class'XComGameState_AIGroup', AIGroup)
 		{
-			Unit = XComGameState_Unit(History.GetGameStateForObjectID(Viewers[i].ObjectID));
-			if(!Unit.IsASoldier())
+			// if this group hasn't activated yet
+			if(!(AIGroup.bProcessedScamper || AIGroup.bPendingScamper))
 			{
-				`log(Unit.GetMyTemplate().Dataname);
-				//bPendingScamper || bPendingScamper
-				//EverSightedByEnemy
+				// if this group has someone who can see the relay
+				foreach Viewers(Ref)
+				{
+					if(INDEX_NONE != AIGroup.m_arrMembers.find('ObjectID',Ref.ObjectID))
+					{
+						`log("Activating"@AIGroup);
+						AIGroup.ApplyAlertAbilityToGroup(eAC_TakingFire);
+						AIGroup.InitiateReflexMoveActivate(XComGameState_Unit(EventSource), eAC_SeesSpottedUnit);
+						break;
+					}
+				}
 			}
 		}
 	}
