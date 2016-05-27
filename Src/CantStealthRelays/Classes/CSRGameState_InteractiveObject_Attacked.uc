@@ -22,8 +22,16 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 	local int i;
 
 	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+
+	// if the owning relay was attacked and this isn't an interrupt
 	if(OwningObjectID == AbilityContext.InputContext.PrimaryTarget.ObjectID)
 	{
+		// causes a compiler error if I try to put the constant on the left or in the same if statement as above
+		if(AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
+		{
+			return ELR_NoInterrupt;
+		}
+
 		History = `XCOMHISTORY;
 		`log("Relay attacked");
 		`log(AbilityContext.InterruptionStatus);
@@ -36,6 +44,8 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 			if(!Unit.IsASoldier())
 			{
 				`log(Unit.GetMyTemplate().Dataname);
+				//bPendingScamper || bPendingScamper
+				//EverSightedByEnemy
 			}
 		}
 	}
@@ -45,12 +55,12 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 
 defaultproperties
 {
-	Begin Object Class=X2Condition_UnitProperty Name=DefaultCSRLivingEnemyProperty
+	Begin Object Class=X2Condition_UnitProperty Name=DefaultCSRLivingAlienProperty
 		ExcludeDead=true
 		ExcludeCivilian=true
 		ExcludeHostileToSource=true // doesn't seem to actually exclude xcom from results, I guess relays don't consider them hostile
 		ExcludeCosmetic=true
 	End Object
 
-	Conditions(0)=DefaultCSRLivingEnemyProperty
+	Conditions(0)=DefaultCSRLivingAlienProperty
 }
