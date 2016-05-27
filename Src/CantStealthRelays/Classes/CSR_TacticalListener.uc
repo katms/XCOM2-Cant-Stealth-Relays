@@ -9,7 +9,7 @@ event OnInit(UIScreen Screen)
 	BattleData = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 
 	// check mission objectives to see if the mod should do anything
-	if(INDEX_NONE == BattleData.MapData.ActiveMission.MapNames.find("Obj_DestroyObject"))
+	if("DestroyObject" != BattleData.MapData.ActiveMission.MissionFamily)
 	{
 		`log("objective not found");
 		return;
