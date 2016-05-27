@@ -1,4 +1,8 @@
-class CSRGameState_InteractiveObject_Attacked extends XComGameState_BaseObject;
+class CSRGameState_InteractiveObject_Attacked extends XComGameState_BaseObject
+	config(CantStealthRelays);
+
+// artificially limit activations to pods within this radius, to prevent too many cases of WHAT DO YOU MEAN YOU CAN SEE IT TOO?
+var config float AlertRadius;
 
 var array<X2Condition> Conditions;
 
@@ -40,7 +44,7 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 		foreach History.IterateByClassType(class'XComGameState_AIGroup', AIGroup)
 		{
 			// if this group hasn't activated yet
-			if(!(AIGroup.bProcessedScamper || AIGroup.bPendingScamper))
+			if(!(AIGroup.bProcessedScamper || AIGroup.bPendingScamper) && ApplyFilter(AIGroup))
 			{
 				// if this group has someone who can see the relay
 				foreach Viewers(Ref)
@@ -59,6 +63,34 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 	
 	return ELR_NoInterrupt;
 }
+
+function bool ApplyFilter(const XComGameState_AIGroup AIGroup)
+{
+	//return default.LimitActivationsToSeen ? AIGroup.EverSightedByEnemy : true;
+	local XComGameStateHistory History;
+	local StateObjectReference Ref;
+	local XComGameState_Unit Unit;
+	local XComGameState_InteractiveObject OwnerRelay;
+
+	History = `XCOMHISTORY;
+	OwnerRelay = XComGameState_InteractiveObject(History.GetGameStateForObjectID(OwningObjectID));
+
+	if(AlertRadius <= 0)
+	{
+		return true;
+	}
+
+	foreach AIGroup.m_arrMembers(Ref)
+	{
+		Unit = XComGameState_Unit(History.GetGameStateForObjectID(Ref.ObjectID));
+		if(class'Helpers'.static.IsTileInRange(Unit.TileLocation, OwnerRelay.TileLocation, AlertRadius*AlertRadius))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 
 defaultproperties
 {
