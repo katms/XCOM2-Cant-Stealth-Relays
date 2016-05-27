@@ -2,9 +2,10 @@ class CSR_TestListener extends UIScreenListener;
 
 event OnInit(UIScreen Screen)
 {
-	local Object this;
 	local XComGameStateHistory History;
 	local XComGameState_BattleData BattleData;
+	local XComGameState_InteractiveObject Relay;
+	//local CSRGameState_InteractiveObject_Attacked Component;
 	
 	History = `XCOMHISTORY;
 	BattleData = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
@@ -12,12 +13,10 @@ event OnInit(UIScreen Screen)
 	// check mission objectives to see if the mod should do anything
 	if(INDEX_NONE == BattleData.MapData.ActiveMission.MapNames.find("Obj_DestroyObject"))
 	{
+		`log("objective not found");
 		return;
 	}
-	
-	this = self;
-	
-	`XEVENTMGR.RegisterForEvent(this, 'AbilityActivated', OnAbilityActivated, ELD_OnStateSubmitted);
+	AttachComponent();
 }
 
 function XComGameState_InteractiveObject GetRelay()
@@ -35,38 +34,41 @@ function XComGameState_InteractiveObject GetRelay()
 	return none;
 }
 
-// this will definitely work
-function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSource, XComGameState GameState, Name EventID)
+function AttachComponent()
 {
-	//Data - Ability State (XComGameState_Ability)
-	//Source - Unit
-	//AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
-	//Target - AbilityContext.InputContext.PrimaryTarget.ObjectID
+	local XComGameState NewGameState;
+	local XComGameState_InteractiveObject Relay, UpdatedRelay;
+	local CSRGameState_InteractiveObject_Attacked Component;
 
-	//AbilityContext.InputContext.AbilityTemplateName == 'StandardShot'
-	local XComGameState_Ability AbilityState;
-	local XComGameStateContext_Ability AbilityContext;
-	local XComGameState_Unit SourceUnit;
-	local XComGameStateHistory History;
-	local string UnitName;
+	Relay = GetRelay();
 
-	AbilityState = XComGameState_Ability(EventData);
-	SourceUnit = XComGameState_Unit(EventSource);
-	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
-
-	if(none == AbilityState || none == SourceUnit || none == AbilityContext)
+	if(none == Relay)
 	{
-		`log("Someting failed here");
-		return ELR_NoInterrupt;
+		`log("Relay not found");
+		return;
 	}
 
-	UnitName = (SourceUnit.IsASoldier()) ? SourceUnit.GetFullName() : string(SourceUnit.GetMyTemplateName());
-	`log(UnitName@"activated"@AbilityState.GetMyTemplateName());
+	
+	if(none != Relay.FindComponentObject(class'CSRGameState_InteractiveObject_Attacked'))
+	{
+		`log("Component found");
+		return;
+	}
 
-	History = `XCOMHISTORY;
-	`log("Target:"@History.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Adding listener object for relay");
 
-	return ELR_NoInterrupt;
+	UpdatedRelay = XComGameState_InteractiveObject(NewGameState.CreateStateObject(class'XComGameState_InteractiveObject', Relay.ObjectID));
+	Component = CSRGameState_InteractiveObject_Attacked(NewGameState.CreateStateObject(class'CSRGameState_InteractiveObject_Attacked'));
+
+	UpdatedRelay.AddComponentObject(Component);
+
+	Component.InitComponent();
+
+	NewGameState.AddStateObject(Component);
+	NewGameState.AddStateObject(UpdatedRelay);
+
+	`XCOMHISTORY.AddGameStateToHistory(NewGameState);
+	`log("Added component to relay");
 }
 
 defaultproperties
