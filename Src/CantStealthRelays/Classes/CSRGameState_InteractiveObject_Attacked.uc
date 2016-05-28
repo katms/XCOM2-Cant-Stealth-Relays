@@ -27,7 +27,7 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
 
 	// if the owning relay was attacked and this isn't an interrupt
-	if(OwningObjectID == AbilityContext.InputContext.PrimaryTarget.ObjectID)
+	if(OwningObjectID == AbilityContext.InputContext.PrimaryTarget.ObjectID || INDEX_NONE != AbilityContext.InputContext.MultiTargets.find('ObjectID', OwningObjectID))
 	{
 		// causes a compiler error if I try to put the constant on the left or in the same if statement as above
 		if(AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
