@@ -15,7 +15,7 @@ event OnInit(UIScreen Screen)
 	{
 		return;
 	}
-	Objective = GetRelay();
+	Objective = GetRelay("AlienRelay");
 	
 	// can't find relay
 	if(none == Objective)
@@ -26,15 +26,15 @@ event OnInit(UIScreen Screen)
 	AttachComponent(Objective);
 }
 
-// find an interactive object with "AlienRelay" in ArchetypePath
-function XComGameState_InteractiveObject GetRelay()
+// find an interactive object with the given identifier in ArchetypePath
+function XComGameState_InteractiveObject GetRelay(string Identifier)
 {
 	local XComInteractiveLevelActor InteractiveActor;
 	local XComGameState_InteractiveObject Relay;
 	foreach `BATTLE.AllActors(class'XComInteractiveLevelActor', InteractiveActor)
 	{
 		Relay = InteractiveActor.GetInteractiveState();
-		if(none != Relay && INDEX_NONE != InStr(Relay.ArchetypePath, "AlienRelay"))
+		if(none != Relay && INDEX_NONE != InStr(Relay.ArchetypePath, Identifier))
 		{
 			return Relay;
 		}
