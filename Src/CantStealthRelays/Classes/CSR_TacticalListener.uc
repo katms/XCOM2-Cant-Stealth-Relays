@@ -5,6 +5,7 @@ event OnInit(UIScreen Screen)
 {
 	local XComGameStateHistory History;
 	local XComGameState_BattleData BattleData;
+	local XComGameState_InteractiveObject Objective;
 	
 	History = `XCOMHISTORY;
 	BattleData = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
@@ -14,7 +15,15 @@ event OnInit(UIScreen Screen)
 	{
 		return;
 	}
-	AttachComponent();
+	Objective = GetRelay();
+	
+	// can't find relay
+	if(none == Objective)
+	{
+		return;
+	}
+
+	AttachComponent(Objective);
 }
 
 // find an interactive object with "AlienRelay" in ArchetypePath
@@ -34,19 +43,11 @@ function XComGameState_InteractiveObject GetRelay()
 }
 
 // attack listener component
-function AttachComponent()
+function AttachComponent(XComGameState_InteractiveObject Relay)
 {
 	local XComGameState NewGameState;
-	local XComGameState_InteractiveObject Relay, UpdatedRelay;
+	local XComGameState_InteractiveObject UpdatedRelay;
 	local CSRGameState_InteractiveObject_Attacked Component;
-
-	Relay = GetRelay();
-
-	// can't find relay
-	if(none == Relay)
-	{
-		return;
-	}
 
 	// already has one, do nothing
 	if(none != Relay.FindComponentObject(class'CSRGameState_InteractiveObject_Attacked'))
