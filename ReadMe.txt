@@ -1,1 +1,8 @@
-﻿Pods in sight of the alien relay will activate when they see it being fired on. As convenient as it is to snipe it while the armed guards two feet to the left ignore it, it doesn't make sense.
+﻿Normally on Alien Relay missions you can send a concealed spotter up to the relay and snipe it, while the aliens sitting on top of the relay completely ignore all of this and patiently wait for you to finish dealing with the time critical stuff before you move on to kill all of them at your own pace.
+
+This never made any sense to me, so now shooting the relay will activate every enemy that can see it, like less apathetic armed guards. 
+
+Also applies to base defense missions. 
+
+
+If this causes too many activations at once, the activation range can be artificially limited.
