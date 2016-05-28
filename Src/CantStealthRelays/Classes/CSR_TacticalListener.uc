@@ -11,13 +11,17 @@ event OnInit(UIScreen Screen)
 	BattleData = XComGameState_BattleData(History.GetSingleGameStateObjectForClass(class'XComGameState_BattleData'));
 
 	// check mission objectives to see if the mod should do anything
-	if("DestroyObject" != BattleData.MapData.ActiveMission.MissionFamily)
+	if("DestroyObject" == BattleData.MapData.ActiveMission.MissionFamily)
 	{
-		return;
+		Objective = GetRelay("AlienRelay");
 	}
-	Objective = GetRelay("AlienRelay");
-	
-	// can't find relay
+	else if('AvengerDefense' == BattleData.MapData.ActiveMission.MissionName)
+	{
+		Objective = GetRelay("RestrictorSpike");
+	}
+
+
+	// can't find objective
 	if(none == Objective)
 	{
 		return;
