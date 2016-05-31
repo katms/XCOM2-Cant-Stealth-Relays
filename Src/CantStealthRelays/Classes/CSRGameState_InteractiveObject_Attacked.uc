@@ -4,6 +4,9 @@ class CSRGameState_InteractiveObject_Attacked extends XComGameState_BaseObject
 // artificially limit activations to pods within this radius, to prevent too many cases of WHAT DO YOU MEAN YOU CAN SEE IT TOO?
 var config float AlertRadius;
 
+// list of ability names that can target the relay but logically shouldn't count as an attack
+var config array<name> IgnoredAbilities;
+
 var array<X2Condition> Conditions;
 
 function InitComponent()
@@ -38,8 +41,8 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 
 		AbilityState = XComGameState_Ability(EventData);
 
-		// ignore yells
-		if('Yell' == AbilityState.GetMyTemplateName())
+		// check if this ability should be ignored
+		if(INDEX_NONE != IgnoredAbilities.find(AbilityState.GetMyTemplateName()))
 		{
 			return ELR_NoInterrupt;			
 		}
