@@ -20,6 +20,7 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 {
 	local XComGameStateContext_Ability AbilityContext;
 	local XComGameStateHistory History;
+	local XComGameState_Ability AbilityState;
 	local array<StateObjectReference> Viewers;
 	local StateObjectReference Ref;
 	local XComGameState_AIGroup AIGroup;
@@ -33,6 +34,14 @@ function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSo
 		if(AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
 		{
 			return ELR_NoInterrupt;
+		}
+
+		AbilityState = XComGameState_Ability(EventData);
+
+		// ignore yells
+		if('Yell' == AbilityState.GetMyTemplateName())
+		{
+			return ELR_NoInterrupt;			
 		}
 
 		History = `XCOMHISTORY;
