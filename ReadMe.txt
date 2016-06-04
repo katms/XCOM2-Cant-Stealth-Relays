@@ -6,3 +6,8 @@ Also applies to base defense missions.
 
 
 If this causes too many activations at once, the activation range can be artificially limited.
+
+Compatibility:
+No overrides
+Works with any missions in the DestroyObject family with an "AlienRelay" interactive
+Works with any missions named AvengerDefense with a "RestrictorSpike" interactive
